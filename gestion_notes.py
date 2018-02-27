@@ -255,17 +255,21 @@ def trie_liste_etudiants(liste_etudiants):
                 
 def ecrire_notes(liste_etudiants_triee):
     """
+    Ecrit les notes dans un fichier "notes_etudiants.csv"
     """
-    with open("notes_final.csv", "w") as canal_notes:
+    with open("notes_etudiants.csv", "w") as canal_notes:
         for etudiant in liste_etudiants_triee:
-            print(etudiant)
             notes = [etudiant[5][UE] for UE in etudiant[5]]
             for i, note in enumerate(notes):
                 if note == None:
                     notes[i] = ""
                 notes[i] = str(notes[i])
-            print(notes)
-            ligne = "|".join(list(etudiant[:5]) + notes)
+            moyenne, mention = resultat(etudiant[5])
+            if moyenne == None:
+                moyenne = ""
+            moyenne = str(moyenne)
+            
+            ligne = "|".join(etudiant[:5] + tuple(notes) + (moyenne, mention))
             canal_notes.write(ligne + "\n")
 
 
