@@ -169,8 +169,116 @@ def reporter_notes4(UE, liste_etudiants, liste_notes):
     # Quand on modifie les valeurs de dict_etudiants, les valeurs associées dans liste_etudiants sont également modifiée
     # Il est alors non nécessaire de transformer dict_etudiants en liste après le report
 
+def resultat(note_etudiant):
+    """
+    Renvoie un couple (moyenne, mention) correspondant aux notes d'un étudiant
+    
+    Exemples:
+    >>> resultat ({'maths': None, 'info': None})
+    (None, 'Absent')
+    >>> resultat ({'maths': 12, 'info': None})
+    (6.0, 'Ajourné')
+    >>> resultat ({'maths': None, 'info': 15})
+    (7.5, 'Ajourné')
+    >>> resultat ({'maths': 9, 'info': 12})
+    (10.5, 'Passable')
+    >>> resultat ({'maths': 15, 'info': 12})
+    (13.5, 'AB')
+    >>> resultat ({'maths': 15, 'info': 16})
+    (15.5, 'B')
+    >>> resultat ({'maths': 18, 'info': 16})
+    (17.0, 'TB')
+    """
+    somme = 0
+    liste_notes = []
+    for UE in note_etudiant:
+        if note_etudiant[UE] != None:
+            somme += note_etudiant[UE]
+        else:
+            liste_notes.append(note_etudiant[UE])
+    
+    if len(liste_notes) == len(note_etudiant):
+        return (None, MENTIONS[0])
+    moy = round(somme / len(note_etudiant), 3) # Arrondi 3 chiffres après la virgule 
+    if moy < 10:
+        mention = MENTIONS[1]
+    elif moy < 12:
+        mention = MENTIONS[2]
+    elif moy < 14:
+        mention = MENTIONS[3]
+    elif moy < 16:
+        mention = MENTIONS[4]
+    else:
+        mention = MENTIONS[5]
+
+    return moy, mention
+
+
+def compare_etudiant_admin(etudiant1, etudiant2):
+    """
+    Compare deux étudiants sur les critères administratif
+    A REMPLIR
+    """
+    if etudiant1[3] < etudiant2[3]: # Profil
+        return -1
+    if etudiant1[3] > etudiant2[3]:
+        return 1
+    
+    if etudiant1[1] < etudiant2[1]: # Nom
+        return -1
+    if etudiant1[1] > etudiant2[1]:
+        return 1
+    
+    if etudiant1[1] < etudiant2[1]: # Prénom
+        return -1
+    if etudiant1[1] > etudiant2[1]:
+        return 1
+    
+    if etudiant1[0] < etudiant2[0]: # Prénom
+        return -1
+    if etudiant1[0] > etudiant2[0]:
+        return 1
+    
+    return 0 # Identité parfaite. Cette personne est douée du don d'ubiquité
+
+def trie_liste_etudiants(liste_etudiants):
+    """
+    Utilise le Bubble Sort
+    """
+    swaped = True
+    while swaped:
+        swaped = False
+        for i in range(len(liste_etudiants)-1):
+            if compare_etudiant_admin(liste_etudiants[i], liste_etudiants[i+1]) == 1:
+                liste_etudiants[i], liste_etudiants[i+1] = liste_etudiants[i+1], liste_etudiants[i]
+                swaped = True
+                
+def ecrire_notes(liste_etudiants_triee):
+    """
+    """
+    with open("notes_final.csv", "w") as canal_notes:
+        for etudiant in liste_etudiants_triee:
+            print(etudiant)
+            notes = [etudiant[5][UE] for UE in etudiant[5]]
+            for i, note in enumerate(notes):
+                if note == None:
+                    notes[i] = ""
+                notes[i] = str(notes[i])
+            print(notes)
+            ligne = "|".join(list(etudiant[:5]) + notes)
+            canal_notes.write(ligne + "\n")
+
+
 
 if __name__ == "__main__":
     import doctest
     doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=False)
 
+
+liste_etudiants = lire_liste_etudiants("data\\petite_liste_etudiants.csv")
+trie_liste_etudiants(liste_etudiants)
+for UE in UES:
+    reporter_notes4(UE, liste_etudiants, lire_liste_notes("data\\petite_notes_{0}.csv".format(UE)))
+# for ligne in liste_etudiants:
+#     print(ligne)
+ecrire_notes(liste_etudiants)
