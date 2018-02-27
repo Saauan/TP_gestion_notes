@@ -1,0 +1,4 @@
+Usage : ./gestion_notes.py <ue1> <ue2> ...
+        <ue1> <ue2> ... sont les noms des UE dont il faut reporter les notes.
+CU : il faut un fichier de nom notes_<ue>.csv par ue présent dans le dossier data
+     et un fichier d'étudiants de nom liste_etudiants.csv

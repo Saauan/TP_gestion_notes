@@ -6,9 +6,10 @@ Auteurs: Tristan Coignion Logan Becquembois
 """
 
 from functools import cmp_to_key
+import sys
 import os.path
 
-UES = ["maths", "info"]
+UES = ["maths", "info"] # Uncomment si on n'utilise pas le script
 PROFILS = {'1' : 'SESI',
            '2' : 'PEIP',
            '3' : 'MASS',
@@ -272,17 +273,35 @@ def ecrire_notes(liste_etudiants_triee):
             ligne = "|".join(etudiant[:5] + tuple(notes) + (moyenne, mention))
             canal_notes.write(ligne + "\n")
 
-
+def usage():
+    """
+    Imprime une aide à l'utilisation du script
+    CU: Le fichier usage.txt doit se trouver dans le même dossier que gestion_notes.py
+    """
+    with open("usage.txt", "r", encoding = "latin-1") as usage:
+        for ligne in usage:
+            print(ligne, end="")    
 
 if __name__ == "__main__":
     import doctest
     doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=False)
 
 
-liste_etudiants = lire_liste_etudiants("data\\petite_liste_etudiants.csv")
-trie_liste_etudiants(liste_etudiants)
-for UE in UES:
-    reporter_notes4(UE, liste_etudiants, lire_liste_notes("data\\petite_notes_{0}.csv".format(UE)))
-# for ligne in liste_etudiants:
-#     print(ligne)
-ecrire_notes(liste_etudiants)
+
+if len(sys.argv) == 1:
+    usage()
+else:
+    UES = []
+    for i in range(1, len(sys.argv)):
+        UES.append(sys.argv[i])
+        
+    try:
+        assert os.path.isfile("data\\liste_etudiants.csv"), "Le fichier liste_etudiants.csv n'existe pas !"
+        liste_etudiants = lire_liste_etudiants("data\\liste_etudiants.csv")
+        trie_liste_etudiants(liste_etudiants)
+        for UE in UES:
+            assert os.path.isfile("data\\notes_{0}.csv".format(UE)), "Le fichier notes_{0}.csv n'existe pas !".format(UE)
+            reporter_notes4(UE, liste_etudiants, lire_liste_notes("data\\notes_{0}.csv".format(UE)))
+        ecrire_notes(liste_etudiants)
+    except AssertionError as error:
+        print(error)
